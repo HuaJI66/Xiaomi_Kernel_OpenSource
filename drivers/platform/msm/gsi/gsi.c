@@ -2711,7 +2711,7 @@ static union __packed gsi_channel_scratch __gsi_update_mhi_channel_scratch(
 }
 
 int gsi_write_channel_scratch(unsigned long chan_hdl,
-		union __packed gsi_channel_scratch val)
+		union gsi_channel_scratch val)
 {
 	struct gsi_chan_ctx *ctx;
 
