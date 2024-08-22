@@ -1,0 +1,68 @@
+name: Release kernel
+on:
+  watch:
+    types: [started]
+  workflow_dispatch:
+    inputs:
+      RELEASE_REPO_TAG:
+        description: 'Release To Repository With Tag'
+        required: true
+        default: 'HuaJi66/Xiaomi_Kernel_OpenSource@nexus-a14-rebase'
+      RELEASE_NAME:
+        description: 'Release Title'
+        required: true
+        default: 'Nexus CAF 4.19 Kernel For Xiaomi Pad 5 pro'
+      RELEASE_FILE:
+        description: 'Release File'
+        required: true
+        default: ''
+      CHANGE_LOG:
+        description: 'Release Body'
+        required: true
+        default: ''
+      PRERELEASE:
+        description: 'Prerelease'
+        required: true
+        type: boolean
+        default: true
+      MAKE_LATEST:
+        description: 'Make Latest'
+        required: true
+        type: boolean
+        default: false
+jobs:
+  build:
+    name: Release Kernel by ${{ github.actor }}
+    runs-on: ubuntu-22.04
+    permissions: write-all
+    if: github.event.repository.owner.id == github.event.sender.id
+    env:
+      CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
+      CCACHE_NOHASHDIR: "true"
+      CCACHE_HARDLINK: "true"
+      CI: "false"
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Prepare Configuration
+      run: |
+        wget ${{ inputs.RELEASE_FILE }}
+        wget ${{ inputs.CHANGE_LOG }}
+        # Release
+        echo "PUBLISH_RELEASE_REPO=$(echo ${{ inputs.RELEASE_REPO_TAG }} | awk -F'@' '{ print $1 }')" >> $GITHUB_ENV
+        echo "RELEASE_TAG=$(echo ${{ inputs.RELEASE_REPO_TAG }} | awk -F'@' '{ print $2 }')" >> $GITHUB_ENV
+        
+    - name: Release Kernel
+      uses: softprops/action-gh-release@v2
+      with:
+        repository: ${{ env.PUBLISH_RELEASE_REPO }}
+        name: ${{ inputs.RELEASE_NAME }}
+        tag_name: ${{ env.RELEASE_TAG }}
+        files: ${{ inputs.RELEASE_FILE }}
+        body_path: CHANGELOG.txt
+        prerelease: ${{ inputs.PRERELEASE }}
+        make_latest: ${{ inputs.MAKE_LATEST }}
+        # note you'll typically need to create a personal access token
+        # with permissions to create releases in the other repo
+        token: ${{ secrets.GITHUB_TOKEN }}
+        #discussion_category_name:  General
