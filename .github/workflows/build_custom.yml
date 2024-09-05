@@ -115,7 +115,7 @@ jobs:
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o build_custom.sh
         chmod +x *.sh && ./build_custom.sh
         if [ ! -f CHANGELOG.txt ];then
-          echo -e "# Build Log\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat out/.config | grep -w "Compiler" | sed 's/^# Compiler: //'`" > CHANGELOG.txt
+          echo -e "# Build Log\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat out/.config | grep -w "Compiler" | sed 's/^# Compiler: //'`" > $GITHUB_WORKSPACE/CHANGELOG.txt
         fi
 
     - name: Upload Release
