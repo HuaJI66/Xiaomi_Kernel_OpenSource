@@ -20,6 +20,10 @@ on:
         description: 'Release To Repository With Tag'
         required: true
         default: 'HuaJi66/Xiaomi_Kernel_OpenSource/tag'
+      BUILD_ARGS:
+        description: 'Build Arga'
+        required: true
+        default: 'build_pad5p'
       TOOLCHAIN:
         description: 'Choice Toochain'
         required: true
@@ -113,7 +117,7 @@ jobs:
         cd $GITHUB_WORKSPACE/android-kernel
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/build.sh -o build.sh
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o build_custom.sh
-        chmod +x *.sh && ./build_custom.sh
+        chmod +x *.sh && ./build_custom.sh ${{ inputs.BUILD_ARGS }}
         if [ ! -f CHANGELOG.md ];then
           echo -e "# Build Log\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat out/.config | grep -w "Compiler" | sed 's/^# Compiler: //'`" > CHANGELOG.md
         fi
