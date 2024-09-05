@@ -1,0 +1,28 @@
+BRANCH=android-4.19-stable
+KMI_GENERATION=2
+
+DEPMOD=depmod
+BUILDTOOLS_PREBUILT_BIN=build/build-tools/path/linux-x86
+
+DTC_EXT=${ROOT_DIR}/prebuilts/kernel-build-tools/linux-x86/bin/dtc
+MKDTBO_EXT=${ROOT_DIR}/tools/libufdt/utils/src/mkdtboimg.py
+
+KCFLAGS="${KCFLAGS} -D__ANDROID_COMMON_KERNEL__"
+STOP_SHIP_TRACEPRINTK=1
+IN_KERNEL_MODULES=1
+DO_NOT_STRIP_MODULES=1
+
+POST_DEFCONFIG_CMDS="check_defconfig && update_gcc_config"
+function update_gcc_config() {
+  # Disable clang-specific options
+  ${KERNEL_DIR}/scripts/config --file ${OUT_DIR}/.config \
+    -d LTO \
+    -d LTO_CLANG \
+    -d CFI \
+    -d CFI_PERMISSIVE \
+    -d CFI_CLANG \
+    -d SHADOW_CALL_STACK
+
+  (cd ${OUT_DIR} && \
+    make O=${OUT_DIR} $archsubarch CROSS_COMPILE=${CROSS_COMPILE} olddefconfig)
+}

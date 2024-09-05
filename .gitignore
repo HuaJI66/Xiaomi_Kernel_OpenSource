@@ -1,0 +1,13 @@
+/*.log
+/*.sh
+/*.old
+/out
+/0
+/patch
+/utils
+/AnyKernel3
+/*.zip
+/*.tar
+/*.gz
+kernel.log.old
+clang
