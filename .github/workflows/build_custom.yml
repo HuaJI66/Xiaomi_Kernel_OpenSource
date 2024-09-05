@@ -11,11 +11,11 @@ on:
       DISABLE_CONFIG:
         description: 'Disable Kernel Config(split with whitespace)'
         required: true
-        default: ''
+        default: 'CONFIG_LOCALVERSION_AUTO CONFIG_DEBUG_INFO CONFIG_MODVERSIONS CONFIG_CC_WERROR CONFIG_CRYPTO_DEV_QCOM_ICE'
       ENABLE_CONFIG:
         description: 'Enable Kernel Config(split with whitespace)'
         required: true
-        default: ''
+        default: 'CONFIG_OVERLAY_FS CONFIG_BUILD_ARM64_DT_OVERLAY CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE'
       RELEASE_REPO_TAG:
         description: 'Release To Repository With Tag'
         required: true
