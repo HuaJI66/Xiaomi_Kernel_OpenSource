@@ -15,7 +15,7 @@ on:
       ENABLE_CONFIG:
         description: 'Enable Kernel Config(split with whitespace)'
         required: true
-        default: 'CONFIG_OVERLAY_FS CONFIG_BUILD_ARM64_DT_OVERLAY CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE'
+        default: 'CONFIG_LOCALVERSION="-perf" CONFIG_OVERLAY_FS CONFIG_BUILD_ARM64_DT_OVERLAY CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE'
       RELEASE_REPO_TAG:
         description: 'Release To Repository With Tag'
         required: true
@@ -24,6 +24,14 @@ on:
         description: 'Build Arga'
         required: true
         default: 'build_pad5p'
+      BUILD_ENV:
+        description: 'Build Env'
+        required: true
+        type: 'option'
+        default: 'none'
+        options:
+        - 'none'
+        - 'docker'
       TOOLCHAIN:
         description: 'Choice Toochain'
         required: true
@@ -102,6 +110,7 @@ jobs:
         chmod +x down_git.sh && bash down_git.sh "${{ inputs.KERNEL_SOURCE_BRANCH }}"
 
     - name: Build Kernel With Custom
+      if: inputs.BUILD_ENV =='none'
       run: |
         sudo apt-get update && sudo apt install -y cpio flex bc python2
         export GITHUB_TOKEN="${{ secrets.ACTION }}"
@@ -119,7 +128,34 @@ jobs:
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o build_custom.sh
         chmod +x *.sh && ./build_custom.sh ${{ inputs.BUILD_ARGS }}
         if [ ! -f CHANGELOG.md ];then
-          echo -e "# Build Log\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat out/.config | grep -w "Compiler" | sed 's/^# Compiler: //'`" > CHANGELOG.md
+          echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat out/.config | grep -w "Compiler" | sed 's/^# Compiler: //'`" > CHANGELOG.md
+        fi
+
+    - name: Build Kernel By Custom In Docker
+      if: inputs.BUILD_ENV =='docker'
+      run: |
+        export GITHUB_TOKEN="${{ secrets.ACTION }}"
+        cd $GITHUB_WORKSPACE/android-kernel
+        curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/build.sh -o build.sh
+        curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o build_custom.sh
+        chmod +x *.sh
+
+        docker run --name kb --privileged=true \
+          -v /root/.cache/ccache/:/root/.cache/ccache/ \
+          -v $(pwd):/root/source \
+          -e "GITHUB_TOKEN='${{ secrets.ACTION }}'" \
+          -e "KBUILD_BUILD_HOST=docker_builder" \
+          -e "KBUILD_BUILD_USER='$(echo ${{ github.actor }} | tr A-Z a-z)'" \
+          -e "KERNEL_TAG='${{ env.PUBLISH_RELEASE_VERSION }}'" \
+          -e "KERNEL_SOURCE='${{ env.KERNEL_SOURCE }}'" \
+          -e "KERNEL_DIR=/root/source" \
+          -e "TOOLCHAIN=${{ inputs.TOOLCHAIN }}" \
+          -e "ENABLE_CONFIG='${{ inputs.ENABLE_CONFIG }}'" \
+          -e "DISABLE_CONFIG='${{ inputs.DISABLE_CONFIG }}'" \
+          registry.cn-hangzhou.aliyuncs.com/pikapikachu/kernel_builder:base bash -c  "apt-get update && apt install -y sudo git cpio curl llvm lld wget vim git ccache automake flex lzop bison gperf build-essential zip zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler kmod python3 python3-pip && /root/source/build_custom.sh ${{ inputs.BUILD_ARGS }}"
+
+        if [ ! -f CHANGELOG.md ];then
+          echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat out/.config | grep -w "Compiler" | sed 's/^# Compiler: //'`" > CHANGELOG.md
         fi
 
     - name: Upload Release
