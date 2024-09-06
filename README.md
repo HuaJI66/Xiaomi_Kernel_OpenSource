@@ -1,5 +1,5 @@
 # Description
-android kernel sm8250 Suitable for the Xiaomi Pad 5 Pro series
+Android kernel sm8250 suitable for the Xiaomi Pad 5 Pro series
 
 ===================
 ## How to build
