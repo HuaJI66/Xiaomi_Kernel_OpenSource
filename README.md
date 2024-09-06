@@ -1,7 +1,7 @@
 # Description
-Android kernel sm8250 suitable for the Xiaomi Pad 5 Pro series
 
-===================
+Android sm8250 kernel suitable for the Xiaomi Pad 5 Pro series.
+
 ## How to build
 1. Clone repository
 ```shell
@@ -33,7 +33,7 @@ export KBUILD_COMPILER_STRING=$("${KERNEL_DIR}"/gcc64/bin/aarch64-elf-gcc --vers
 PATH="${KERNEL_DIR}"/gcc32/bin:"${KERNEL_DIR}"/gcc64/bin:/usr/bin/:${PATH}
 VERBOSE=0
 DEFCONFIG="vendor/kona-perf_defconfig vendor/xiaomi/sm8250-common.config vendor/xiaomi/${DEVICE}.config"
-OUT_DIR=${OUT_DIR:=$(pwd)}
+OUT_DIR=${OUT_DIR:=out}
 
 make O=${OUT_DIR} ARCH=arm64 ${DEFCONFIG}
 if [ "$METHOD" = "lto" ]; then
@@ -72,4 +72,4 @@ ubuntu bash -c  "/root/source/build.sh"
 
 3. Check output
    
-   You can get the output file in directory arch/arm64/boot after compiled.
+You can get the output file in directory arch/arm64/boot after compiled.
