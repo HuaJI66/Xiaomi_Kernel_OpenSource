@@ -141,7 +141,7 @@ jobs:
         chmod +x *.sh
 
         docker run --name kb --privileged=true \
-          -v /root/.cache/ccache/:/root/.cache/ccache/ \
+          -v .cache/ccache/:/root/.cache/ccache/ \
           -v $(pwd):/root/source \
           -e "GITHUB_TOKEN='${{ secrets.ACTION }}'" \
           -e "KBUILD_BUILD_HOST=docker_builder" \
@@ -152,7 +152,7 @@ jobs:
           -e "TOOLCHAIN=${{ inputs.TOOLCHAIN }}" \
           -e "ENABLE_CONFIG='${{ inputs.ENABLE_CONFIG }}'" \
           -e "DISABLE_CONFIG='${{ inputs.DISABLE_CONFIG }}'" \
-          ubuntu bash -c  "apt-get update && apt install -y sudo git cpio curl llvm lld wget vim git ccache automake flex lzop bison gperf build-essential zip zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler kmod python3 python3-pip && /root/source/build_custom.sh ${{ inputs.BUILD_ARGS }}"
+          ubuntu bash -c  "apt-get update && apt install -y sudo git cpio curl llvm lld wget vim git ccache automake flex lzop bison gperf build-essential zip zlib1g-dev g++-multilib libxml2-utils bzip2 libbz2-dev libbz2-1.0 libghc-bzlib-dev squashfs-tools pngcrush schedtool dpkg-dev liblz4-tool make optipng maven libssl-dev pwgen libswitch-perl policycoreutils minicom libxml-sax-base-perl libxml-simple-perl bc libc6-dev-i386 x11proto-core-dev libx11-dev lib32z-dev libgl1-mesa-dev xsltproc unzip device-tree-compiler kmod python3 python3-pip python && /root/source/build_custom.sh ${{ inputs.BUILD_ARGS }}"
 
         if [ ! -f CHANGELOG.md ];then
           echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat out/.config | grep -w "Compiler" | sed 's/^# Compiler: //'`" > CHANGELOG.md
