@@ -27,7 +27,7 @@ on:
       BUILD_ENV:
         description: 'Build Env'
         required: true
-        type: 'option'
+        type: choice
         default: 'none'
         options:
         - 'none'
