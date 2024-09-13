@@ -106,10 +106,9 @@ jobs:
       run: |
         export GITHUB_TOKEN="${{ secrets.ACTION }}"
         export OWNER=${{ github.actor }}
-
-        curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o build_custom.sh
-        chmod +x *.sh && bash down_git.sh "${{ inputs.KERNEL_SOURCE_BRANCH }}"
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/down_git.sh -o $GITHUB_WORKSPACE/android-kernel/down_git.sh
+        chmod +x *.sh && bash down_git.sh "${{ inputs.KERNEL_SOURCE_BRANCH }}"
+        curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o build_custom.sh
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/build.sh -o $GITHUB_WORKSPACE/android-kernel/build.sh
 
     - name: Build Kernel On ${{ runner.os }}
