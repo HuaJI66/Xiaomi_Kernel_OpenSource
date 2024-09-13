@@ -126,7 +126,7 @@ jobs:
           $(echo ${{ github.actor }} | tr A-Z a-z)/kernel_builder:base bash -c  "/root/source/build_custom.sh ${{ inputs.BUILD_ARGS }}"
 
         if [ ! -f CHANGELOG.md ];then
-          echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat complier.version`" > CHANGELOG.md
+          echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat compiler.version`" > CHANGELOG.md
         fi
 
     - name: Upload Release
@@ -140,7 +140,7 @@ jobs:
       if: env.PUBLISH_RELEASE == 'true'
       with:
         repository: ${{ env.PUBLISH_RELEASE_REPO_AUTHOR }}/${{ env.PUBLISH_RELEASE_REPO }}
-        name: ${{ env.PUBLISH_RELEASE_VERSION }} Kernel For Xiaomi Pad 5 Pro Devices
+        name:  ${{ env.KERNEL_SOURCE }} Kernel For Xiaomi Pad 5 Pro Devices
         tag_name: ${{ env.PUBLISH_RELEASE_VERSION }}
         files: |
           android-kernel/release/*.zip
