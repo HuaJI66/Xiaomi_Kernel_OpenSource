@@ -24,14 +24,6 @@ on:
         description: 'Build Arga'
         required: true
         default: 'build_pad5p'
-      BUILD_ENV:
-        description: 'Build Env'
-        required: true
-        type: choice
-        default: 'docker'
-        options:
-        - 'none'
-        - 'docker'
       TOOLCHAIN:
         description: 'Choice Toochain'
         required: true
@@ -47,11 +39,6 @@ on:
         - "eva-gcc"
         - "yuki"
         - "llvm"
-      ENABLE_CCACHE:
-        description: 'Enable Ccache'
-        required: true
-        default: true
-        type: boolean
       KERNELSU_TAG:
         description: 'KernelSU TAG'
         required: false
@@ -83,6 +70,7 @@ jobs:
         echo "PUBLISH_RELEASE_REPO_AUTHOR=$(echo ${{ inputs.RELEASE_REPO_TAG }} | awk -F '/' '{ print $1 }')" >> $GITHUB_ENV
         echo "PUBLISH_RELEASE_REPO=$(echo ${{ inputs.RELEASE_REPO_TAG }} | awk -F '/' '{ print $2 }')" >> $GITHUB_ENV
         echo "PUBLISH_RELEASE_VERSION=$(echo ${{ inputs.RELEASE_REPO_TAG }} | awk -F '/' '{ print $3 }')" >> $GITHUB_ENV
+        echo "SOURCE_BRANCH=$(echo ${{ inputs.KERNEL_SOURCE_BRANCH }} | awk -F '@' '{ print $2 }')" >> $GITHUB_ENV
         
         if [ ! -z "${{ env.PUBLISH_RELEASE_REPO_AUTHOR }}" ] && [ ! -z "${{ env.PUBLISH_RELEASE_REPO }}" ] && [ ! -z "${{ env.PUBLISH_RELEASE_VERSION }}" ]; then 
           echo "PUBLISH_RELEASE=false" >> $GITHUB_ENV
@@ -95,12 +83,12 @@ jobs:
       with:
         swap-size-gb: 10
 
-    - name: Setup ccache
-      if: ${{ inputs.ENABLE_CCACHE }} == 'true'
-      uses: hendrikmuhs/ccache-action@v1.2
+    - name: Setup Ccache
+      uses: actions/cache@v3
       with:
-        key: build-kernel-${{ env.PUBLISH_RELEASE_VERSION }}
-        max-size: 10G
+        key: ${{ env.SOURCE_BRANCH }}
+        path: |
+          $GITHUB_WORKSPACE/android-kernel/.cache/ccache
 
     - name: Download kernel source
       run: |
@@ -111,28 +99,8 @@ jobs:
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o $GITHUB_WORKSPACE/android-kernel/build_custom.sh
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/build.sh -o $GITHUB_WORKSPACE/android-kernel/build.sh
         chmod +x $GITHUB_WORKSPACE/android-kernel/*.sh
-    - name: Build Kernel On ${{ runner.os }}
-      if: inputs.BUILD_ENV =='none'
-      run: |
-        sudo apt-get update && sudo apt install -y make cpio flex bison libssl-dev bc python-is-python3
-        export GITHUB_TOKEN="${{ secrets.ACTION }}"
-        export ENABLE_CONFIG="${{ inputs.ENABLE_CONFIG }}"
-        export DISABLE_CONFIG="${{ inputs.DISABLE_CONFIG }}"
-        export KBUILD_BUILD_HOST="action_builder"
-        export KBUILD_BUILD_USER="$(echo ${{ github.actor }} | tr A-Z a-z)"
-        export KERNEL_TAG="$(echo ${{ inputs.KERNEL_SOURCE_BRANCH }} | awk -F '@' '{ print $2 }')"
-        export KERNEL_SOURCE="${{ env.KERNEL_SOURCE }}"
-        export KERNELSU_TAG="${{ inputs.KERNELSU_TAG }}"
-        export TOOLCHAIN="${{ inputs.TOOLCHAIN }}"
-
-        cd $GITHUB_WORKSPACE/android-kernel
-        ./build_custom.sh ${{ inputs.BUILD_ARGS }}
-        if [ ! -f CHANGELOG.md ];then
-          echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat complier.version`" > CHANGELOG.md
-        fi
-
+  
     - name: Build Kernel On Docker
-      if: inputs.BUILD_ENV =='docker'
       run: |
         export GITHUB_TOKEN="${{ secrets.ACTION }}"
         cd $GITHUB_WORKSPACE/android-kernel
@@ -144,8 +112,8 @@ jobs:
           -e "OWNER=${{ github.actor }}" \
           -e "GITHUB_TOKEN=${{ secrets.ACTION }}" \
           -e "KBUILD_BUILD_HOST=docker_builder" \
-          -e "KBUILD_BUILD_USER='$(echo ${{ github.actor }} | tr A-Z a-z)'" \
-          -e "KERNEL_TAG='$(echo ${{ inputs.KERNEL_SOURCE_BRANCH }} | awk -F '@' '{ print $2 }')'" \
+          -e "KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)" \
+          -e "KERNEL_TAG=${{ env.SOURCE_BRANCH }}" \
           -e "KERNEL_SOURCE='${{ env.KERNEL_SOURCE }}'" \
           -e "KERNEL_DIR=/root/source" \
           -e "OUT_DIR=out" \
