@@ -110,6 +110,7 @@ jobs:
         chmod +x *.sh && bash down_git.sh "${{ inputs.KERNEL_SOURCE_BRANCH }}"
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o $GITHUB_WORKSPACE/android-kernel/build_custom.sh
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/build.sh -o $GITHUB_WORKSPACE/android-kernel/build.sh
+        chmod +x *.sh
 
     - name: Build Kernel On ${{ runner.os }}
       if: inputs.BUILD_ENV =='none'
