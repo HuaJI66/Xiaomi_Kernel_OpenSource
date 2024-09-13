@@ -126,7 +126,7 @@ jobs:
           $(echo ${{ github.actor }} | tr A-Z a-z)/kernel_builder:base bash -c  "/root/source/build_custom.sh ${{ inputs.BUILD_ARGS }}"
 
         if [ ! -f CHANGELOG.md ];then
-          echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat compiler.version`" > CHANGELOG.md
+          echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Compiler: `cat compiler.version`" > CHANGELOG.md
         fi
 
     - name: Upload Release
@@ -152,9 +152,3 @@ jobs:
         # note you'll typically need to create a personal access token
         # with permissions to create releases in the other repo
         # token: ${{secrets.ACTION}}
-        
-    - name: Upload Ccache
-      uses: actions/upload-artifact@v4
-      with:
-        name: Ccache-${{ runner.os }}-build-kernel@${{ env.SOURCE_BRANCH }}
-        path: .cache/ccache
