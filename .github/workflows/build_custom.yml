@@ -110,7 +110,6 @@ jobs:
         chmod +x *.sh && bash down_git.sh "${{ inputs.KERNEL_SOURCE_BRANCH }}"
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o $GITHUB_WORKSPACE/android-kernel/build_custom.sh
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/build.sh -o $GITHUB_WORKSPACE/android-kernel/build.sh
-        chmod +x *.sh
 
     - name: Build Kernel On ${{ runner.os }}
       if: inputs.BUILD_ENV =='none'
@@ -127,7 +126,7 @@ jobs:
         export TOOLCHAIN="${{ inputs.TOOLCHAIN }}"
 
         cd $GITHUB_WORKSPACE/android-kernel
-        ./build_custom.sh ${{ inputs.BUILD_ARGS }}
+        chmod +x *.sh && ./build_custom.sh ${{ inputs.BUILD_ARGS }}
         if [ ! -f CHANGELOG.md ];then
           echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat complier.version`" > CHANGELOG.md
         fi
@@ -153,7 +152,7 @@ jobs:
           -e "TOOLCHAIN=${{ inputs.TOOLCHAIN }}" \
           -e "ENABLE_CONFIG='${{ inputs.ENABLE_CONFIG }}'" \
           -e "DISABLE_CONFIG='${{ inputs.DISABLE_CONFIG }}'" \
-          $(echo ${{ github.actor }} | tr A-Z a-z)/kernel_builder:base bash -c  "/root/source/build_custom.sh ${{ inputs.BUILD_ARGS }}"
+          $(echo ${{ github.actor }} | tr A-Z a-z)/kernel_builder:base bash -c  "chmod +x *.sh && /root/source/build_custom.sh ${{ inputs.BUILD_ARGS }}"
 
         if [ ! -f CHANGELOG.md ];then
           echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat complier.version`" > CHANGELOG.md
