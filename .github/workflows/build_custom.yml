@@ -7,7 +7,7 @@ on:
       KERNEL_SOURCE_BRANCH:
         description: 'Kernel Source Code'
         required: true
-        default: ''
+        default: 'https://github.com/HuaJI66/Xiaomi_Kernel_OpenSource@lineage-21'
       DISABLE_CONFIG:
         description: 'Disable Kernel Config(split with whitespace)'
         required: true
@@ -19,7 +19,7 @@ on:
       RELEASE_REPO_TAG:
         description: 'Release To Repository With Tag'
         required: true
-        default: 'HuaJi66/Xiaomi_Kernel_OpenSource/tag'
+        default: 'HuaJi66/Xiaomi_Kernel_OpenSource/lineage-21'
       BUILD_ARGS:
         description: 'Build Arga'
         required: true
@@ -28,14 +28,14 @@ on:
         description: 'Build Env'
         required: true
         type: choice
-        default: 'none'
+        default: 'docker'
         options:
         - 'none'
         - 'docker'
       TOOLCHAIN:
         description: 'Choice Toochain'
         required: true
-        default: 'llvm'
+        default: 'yuki'
         type: choice
         options:
         - "nexus"
@@ -120,7 +120,7 @@ jobs:
         export DISABLE_CONFIG="${{ inputs.DISABLE_CONFIG }}"
         export KBUILD_BUILD_HOST="action_builder"
         export KBUILD_BUILD_USER="$(echo ${{ github.actor }} | tr A-Z a-z)"
-        export KERNEL_TAG="${{ env.PUBLISH_RELEASE_VERSION }}"
+        export KERNEL_TAG="$(echo ${{ inputs.KERNEL_SOURCE_BRANCH }} | awk -F '@' '{ print $2 }')"
         export KERNEL_SOURCE="${{ env.KERNEL_SOURCE }}"
         export KERNELSU_TAG="${{ inputs.KERNELSU_TAG }}"
         export TOOLCHAIN="${{ inputs.TOOLCHAIN }}"
@@ -145,7 +145,7 @@ jobs:
           -e "GITHUB_TOKEN=${{ secrets.ACTION }}" \
           -e "KBUILD_BUILD_HOST=docker_builder" \
           -e "KBUILD_BUILD_USER='$(echo ${{ github.actor }} | tr A-Z a-z)'" \
-          -e "KERNEL_TAG='${{ env.PUBLISH_RELEASE_VERSION }}'" \
+          -e "KERNEL_TAG='$(echo ${{ inputs.KERNEL_SOURCE_BRANCH }} | awk -F '@' '{ print $2 }')'" \
           -e "KERNEL_SOURCE='${{ env.KERNEL_SOURCE }}'" \
           -e "KERNEL_DIR=/root/source" \
           -e "OUT_DIR=out" \
