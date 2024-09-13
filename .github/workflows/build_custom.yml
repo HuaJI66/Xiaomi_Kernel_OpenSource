@@ -77,6 +77,9 @@ jobs:
         else
           echo "PUBLISH_RELEASE=true" >> $GITHUB_ENV
         fi
+        if [ ! -d $GITHUB_WORKSPACE/.cache/ccache ];then
+          mkdir -p $GITHUB_WORKSPACE/.cache/ccache
+        fi
         
     - name: Set swap
       uses: pierotofy/set-swap-space@master
@@ -86,9 +89,9 @@ jobs:
     - name: Setup Ccache
       uses: actions/cache@v3
       with:
-        key: ${{ env.SOURCE_BRANCH }}
+        key: ${{ runner.os }}-build-kernel@${{ env.SOURCE_BRANCH }}
         path: |
-          $GITHUB_WORKSPACE/android-kernel/.cache/ccache
+          $GITHUB_WORKSPACE/.cache/ccache
 
     - name: Download kernel source
       run: |
@@ -106,7 +109,7 @@ jobs:
         cd $GITHUB_WORKSPACE/android-kernel
 
         docker run --name kb --privileged=true \
-          -v $(pwd)/.cache/ccache/:/root/.cache/ccache/ \
+          -v $GITHUB_WORKSPACE/.cache/ccache:/root/.cache/ccache/ \
           -v $(pwd):/root/source \
           -v /etc/timezone:/etc/timezone \
           -e "OWNER=${{ github.actor }}" \
