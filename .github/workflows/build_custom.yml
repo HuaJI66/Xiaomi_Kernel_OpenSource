@@ -106,15 +106,16 @@ jobs:
       run: |
         export GITHUB_TOKEN="${{ secrets.ACTION }}"
         export OWNER=${{ github.actor }}
-        curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/down_git.sh -o down_git.sh
-        curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/build.sh -o build.sh
+
         curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/build_custom.sh -o build_custom.sh
         chmod +x *.sh && bash down_git.sh "${{ inputs.KERNEL_SOURCE_BRANCH }}"
+        curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/down_git.sh -o $GITHUB_WORKSPACE/android-kernel/down_git.sh
+        curl -H "Authorization: token $GITHUB_TOKEN" -H "Accept: application/vnd.github.v3.raw" https://raw.githubusercontent.com/${{ github.actor }}/Build_Kernel_Action/enuma/shell/build.sh -o $GITHUB_WORKSPACE/android-kernel/build.sh
 
-    - name: Build Kernel With Custom
+    - name: Build Kernel On ${{ runner.os }}
       if: inputs.BUILD_ENV =='none'
       run: |
-        sudo apt-get update && sudo apt install -y cpio flex bc python2
+        sudo apt-get update && sudo apt install -y make cpio flex bison libssl-dev bc python-is-python3
         export GITHUB_TOKEN="${{ secrets.ACTION }}"
         export ENABLE_CONFIG="${{ inputs.ENABLE_CONFIG }}"
         export DISABLE_CONFIG="${{ inputs.DISABLE_CONFIG }}"
@@ -131,7 +132,7 @@ jobs:
           echo -e "# Build Log\n- Commit: $(git log --oneline -1)\n- Build Date: $(date)\n- Linux Version: $(make kernelversion)\n- Complier: `cat complier.version`" > CHANGELOG.md
         fi
 
-    - name: Build Kernel By Custom In Docker
+    - name: Build Kernel On Docker
       if: inputs.BUILD_ENV =='docker'
       run: |
         export GITHUB_TOKEN="${{ secrets.ACTION }}"
