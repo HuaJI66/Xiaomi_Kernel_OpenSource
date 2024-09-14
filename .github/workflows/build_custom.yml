@@ -140,7 +140,7 @@ jobs:
       if: env.PUBLISH_RELEASE == 'true'
       with:
         repository: ${{ env.PUBLISH_RELEASE_REPO_AUTHOR }}/${{ env.PUBLISH_RELEASE_REPO }}
-        name:  ${{ env.KERNEL_SOURCE }} Kernel For Xiaomi Pad 5 Pro Devices
+        name:  ${{ env.SOURCE_BRANCH }} Kernel For Xiaomi Pad 5 Pro Devices
         tag_name: ${{ env.PUBLISH_RELEASE_VERSION }}
         files: |
           android-kernel/release/*.zip
