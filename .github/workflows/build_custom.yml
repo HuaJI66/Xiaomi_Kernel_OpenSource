@@ -45,6 +45,8 @@ on:
         default: 'v0.9.5'
         type: choice
         options:
+        - 'v1.0.4-next'
+        - 'v1.0.3-next'
         - 'v1.0.0'
         - 'v0.9.5'
         - 'v0.9.4'
