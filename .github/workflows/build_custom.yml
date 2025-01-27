@@ -146,8 +146,8 @@ jobs:
         tag_name: ${{ env.PUBLISH_RELEASE_VERSION }}
         files: |
           android-kernel/release/*.zip
-          android-kernel/release/Image*
-          android-kernel/release/dtb*
+          # android-kernel/release/Image*
+          # android-kernel/release/dtb*
         body_path: android-kernel/CHANGELOG.md
         prerelease: false
         make_latest: true
