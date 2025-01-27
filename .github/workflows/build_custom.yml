@@ -121,6 +121,7 @@ jobs:
           -e "KERNEL_TAG=${{ env.SOURCE_BRANCH }}" \
           -e "KERNEL_SOURCE='${{ env.KERNEL_SOURCE }}'" \
           -e "KERNEL_DIR=/root/source" \
+          -e "KERNELSU_TAG='${{ inputs.KERNELSU_TAG }}'" \
           -e "OUT_DIR=out" \
           -e "TOOLCHAIN=${{ inputs.TOOLCHAIN }}" \
           -e "ENABLE_CONFIG='${{ inputs.ENABLE_CONFIG }}'" \
